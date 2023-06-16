@@ -201,3 +201,42 @@ class WechatChannel(ChatChannel):
             image_storage.seek(0)
             itchat.send_image(image_storage, toUserName=receiver)
             logger.info("[WX] sendImage, receiver={}".format(receiver))
+
+    # 发送消息到指定群，群名称在 config.json 中配置 group_auto_send_message 字段。
+    def send_the_group(self, reply: Reply):
+        config = conf()
+        group_auto_send_message = config.get("group_auto_send_message", [])
+        logger.debug("[WX] send_the_group group_auto_send_message={}".format(group_auto_send_message))
+
+        # 遍历群聊名称列表，对每个群聊名称调用 itchat.search_chatrooms
+        for group_name in group_auto_send_message:
+            group = itchat.search_chatrooms(name=group_name)
+            logger.debug("[WX] send_the_group reply={}, group={}".format(reply, group))
+            if group:
+                group_username = group[0]['UserName']
+                logger.debug("[WX] send_the_group group_username={}".format(group_username))
+                itchat.send(reply.content, toUserName=group_username)
+                logger.info("[WX] sendMsg={}, receiver={}".format(reply, group_username))
+
+            else:
+                logger.info('[WX] send_the_group 未找到指定的群聊={}'.format(group_name))
+
+        # # 获取群聊的UserName
+        # group_name = 'ChatGPT测试群'
+        # group = itchat.search_chatrooms(name=group_name)
+        # logger.debug("[WX] send_the_group reply={}, group={}".format(reply, group))
+        # if group:
+        #     group_username = group[0]['UserName']
+        #     logger.debug("[WX] send_the_group group_username={}".format(group_username))
+
+        #     # 发送消息
+        #     # message = '这是一条自动发送的消息'
+        #     # itchat.send(message, toUserName=group_username)
+        #     # receiver = "@" + group_username
+        #     # logger.debug("[WX] send_the_group receiver_id={}".format(receiver))
+
+        #     itchat.send(reply.content, toUserName=group_username)
+        #     logger.info("[WX] sendMsg={}, receiver={}".format(reply, group_username))
+
+        # else:
+        #     logger.info('[WX] send_the_group 未找到指定的群聊={}'.format(group_name))

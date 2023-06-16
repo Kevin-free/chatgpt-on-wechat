@@ -26,6 +26,10 @@ class Event(Enum):
 
     # AFTER_SEND_REPLY = 5    # 发送回复后
 
+    ON_SCHEDULED_MESSAGE = 6  # 定时消息事件
+    """
+    e_context = { "channel": 消息channel, "reply" : 目前的回复 }
+    """
 
 class EventAction(Enum):
     CONTINUE = 1  # 事件未结束，继续交给下个插件处理，如果没有下个插件，则交付给默认的事件处理逻辑

@@ -2,6 +2,7 @@ import os
 import re
 import threading
 import time
+import schedule
 from asyncio import CancelledError
 from concurrent.futures import Future, ThreadPoolExecutor
 
@@ -29,9 +30,17 @@ class ChatChannel(Channel):
     handler_pool = ThreadPoolExecutor(max_workers=8)  # 处理消息的线程池
 
     def __init__(self):
-        _thread = threading.Thread(target=self.consume)
-        _thread.setDaemon(True)
-        _thread.start()
+        # _thread = threading.Thread(target=self.consume)
+        # _thread.setDaemon(True)
+        # _thread.start()
+        thread_consume = threading.Thread(target=self.consume)
+        thread_schedule = threading.Thread(target=self.schedule)
+
+        thread_consume.setDaemon(True)
+        thread_schedule.setDaemon(True)
+
+        thread_consume.start()
+        thread_schedule.start()
 
     # 根据消息构造context，消息内容相关的触发项写在这里
     def _compose_context(self, ctype: ContextType, content, **kwargs):
@@ -151,6 +160,23 @@ class ChatChannel(Channel):
 
         # reply的发送步骤
         self._send_reply(context, reply)
+
+    # 定时发送消息
+    def _send_scheduled_message(self, reply: Reply = Reply()) -> Reply:
+        logger.debug("[chat_channel] do _send_scheduled_message")
+        e_context = PluginManager().emit_event(
+            EventContext(
+                Event.ON_SCHEDULED_MESSAGE,
+                {"channel": self, "reply": reply},
+            )
+        )
+
+        # receiver_id = "@" + self.user_id
+        # receiver_id = "@" + "@d8f7d8a0e26aa62e73d8947e7342fa556ba0ecb55b3399426f6aa9caaccf8f70"
+        # logger.debug("[chat_channel] _send_scheduled_message receiver_id: {}".format(receiver_id))
+        # context = Context(type=ContextType.TEXT, content="_send_scheduled_message", kwargs={"receiver": receiver_id})
+        reply = e_context["reply"]
+        self.send_the_group(reply)
 
     def _generate_reply(self, context: Context, reply: Reply = Reply()) -> Reply:
         e_context = PluginManager().emit_event(
@@ -322,6 +348,20 @@ class ChatChannel(Channel):
                         else:
                             semaphore.release()
             time.sleep(0.1)
+
+    # 定时任务函数
+    def schedule(self):
+        # 设置定时任务：每天18:00发送一条消息
+        # schedule.every().day.at("18:00").do(self.send_scheduled_message)
+        # 设置定时任务：每10秒
+        # schedule.every(10).seconds.do(self.on_scheduled_message)
+        schedule.every(10).seconds.do(self._send_scheduled_message)
+
+        # 启动定时任务的调度循环
+        while True:
+            logger.debug("[schedule] do True")
+            schedule.run_pending()
+            time.sleep(1)
 
     # 取消session_id对应的所有任务，只能取消排队的消息和已提交线程池但未执行的任务
     def cancel_session(self, session_id):
