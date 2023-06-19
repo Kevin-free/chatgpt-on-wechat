@@ -43,7 +43,7 @@ class ScheduledMessage(Plugin):
         logger.debug("GPT生成内容：{}".format(newstext))
 
         reply = Reply()  # 创建一个回复对象
-        reply.content = "@所有人" + newstext # 回复内容
+        reply.content = "@所有人 " + newstext # 回复内容
         reply.type = ReplyType.TEXT
         e_context["reply"] = reply # 通过 event_context 传递
         e_context.action = EventAction.BREAK_PASS
