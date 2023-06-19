@@ -2,7 +2,6 @@ import os
 import re
 import threading
 import time
-import schedule
 from apscheduler.schedulers.blocking import BlockingScheduler
 from asyncio import CancelledError
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -348,9 +347,14 @@ class ChatChannel(Channel):
     # 定时任务函数
     def schedule(self):
         scheduler = BlockingScheduler()
-        # auto_timed_message_cron = conf().get("auto_timed_message_cron")
-        auto_timed_message_cron = conf().get("test_auto_timed_message_cron")
+        # 根据 config 中的 debug 判断。
+        # False 是可选的默认值，如果字典中不存在 "debug" 键，则返回默认值。
+        if conf().get("debug", False):
+            auto_timed_message_cron = conf().get("debug_auto_timed_message_cron")
+        else:
+            auto_timed_message_cron = conf().get("auto_timed_message_cron")
         scheduler.add_job(self._send_scheduled_message, 'cron', **auto_timed_message_cron)
+        logger.info("scheduler auto_timed_message_cron={}".format(auto_timed_message_cron))
         scheduler.start()
 
     # 取消session_id对应的所有任务，只能取消排队的消息和已提交线程池但未执行的任务
