@@ -33,7 +33,7 @@ class Channel(object):
         """
         raise NotImplementedError
 
-    # 发送消息到指定群，群名称在 config.json 中配置 group_auto_send_message 字段。
+    # 发送消息到指定群，群名称在 config.json 中配置 auto_timed_message_groups 字段。
     def send_the_group(self, reply: Reply):
         """
         send message to user

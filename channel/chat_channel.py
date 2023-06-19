@@ -3,6 +3,7 @@ import re
 import threading
 import time
 import schedule
+from apscheduler.schedulers.blocking import BlockingScheduler
 from asyncio import CancelledError
 from concurrent.futures import Future, ThreadPoolExecutor
 
@@ -170,11 +171,6 @@ class ChatChannel(Channel):
                 {"channel": self, "reply": reply},
             )
         )
-
-        # receiver_id = "@" + self.user_id
-        # receiver_id = "@" + "@d8f7d8a0e26aa62e73d8947e7342fa556ba0ecb55b3399426f6aa9caaccf8f70"
-        # logger.debug("[chat_channel] _send_scheduled_message receiver_id: {}".format(receiver_id))
-        # context = Context(type=ContextType.TEXT, content="_send_scheduled_message", kwargs={"receiver": receiver_id})
         reply = e_context["reply"]
         self.send_the_group(reply)
 
@@ -351,17 +347,11 @@ class ChatChannel(Channel):
 
     # 定时任务函数
     def schedule(self):
-        # 设置定时任务：每天18:00发送一条消息
-        # schedule.every().day.at("18:00").do(self.send_scheduled_message)
-        # 设置定时任务：每10秒
-        # schedule.every(10).seconds.do(self.on_scheduled_message)
-        schedule.every(10).seconds.do(self._send_scheduled_message)
-
-        # 启动定时任务的调度循环
-        while True:
-            logger.debug("[schedule] do True")
-            schedule.run_pending()
-            time.sleep(1)
+        scheduler = BlockingScheduler()
+        # auto_timed_message_cron = conf().get("auto_timed_message_cron")
+        auto_timed_message_cron = conf().get("test_auto_timed_message_cron")
+        scheduler.add_job(self._send_scheduled_message, 'cron', **auto_timed_message_cron)
+        scheduler.start()
 
     # 取消session_id对应的所有任务，只能取消排队的消息和已提交线程池但未执行的任务
     def cancel_session(self, session_id):
