@@ -215,6 +215,6 @@ class WechatChannel(ChatChannel):
                 group_username = group[0]['UserName']
                 logger.debug("[WX] send_the_group group_username={}".format(group_username))
                 itchat.send(reply.content, toUserName=group_username)
-                logger.info("[WX] sendMsg={}, receiver={}".format(reply, group_username))
+                logger.info("[WX] sendMsg={}, group_name={}".format(reply, group_name))
             else:
                 logger.info('[WX] send_the_group 未找到指定的群聊={}'.format(group_name))
