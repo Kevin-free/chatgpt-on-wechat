@@ -4,15 +4,16 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.alpine
-    image: zhayujie/chatgpt-on-wechat
-    container_name: sample-chatgpt-on-wechat
+    image: img-cow-role-human
+    container_name: cr-cow-role-human
     environment:
-      OPEN_AI_API_KEY: 'YOUR API KEY'
+      OPEN_AI_API_BASE: 'https://openai.ifree.love/v1'
+      OPEN_AI_API_KEY: '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'
       OPEN_AI_PROXY: ''
-      SINGLE_CHAT_PREFIX: '["bot", "@bot"]'
-      SINGLE_CHAT_REPLY_PREFIX: '"[bot] "'
+      SINGLE_CHAT_PREFIX: ''
+      SINGLE_CHAT_REPLY_PREFIX: ''
       GROUP_CHAT_PREFIX: '["@bot"]'
-      GROUP_NAME_WHITE_LIST: '["ChatGPT测试群", "ChatGPT测试群2"]'
+      GROUP_NAME_WHITE_LIST: '["ChatGPT正式群","💪🏻真AI健身群 | 施瓦辛格"]'
       IMAGE_CREATE_PREFIX: '["画", "看", "找"]'
       CONVERSATION_MAX_TOKENS: 1000
       SPEECH_RECOGNITION: "False"
