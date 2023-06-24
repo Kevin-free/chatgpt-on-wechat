@@ -40,7 +40,8 @@ class ChatChannel(Channel):
         thread_schedule.setDaemon(True)
 
         thread_consume.start()
-        thread_schedule.start()
+        if conf().get("is_auto_timed_message") == True:
+            thread_schedule.start()
 
     # 根据消息构造context，消息内容相关的触发项写在这里
     def _compose_context(self, ctype: ContextType, content, **kwargs):

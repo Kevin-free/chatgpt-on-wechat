@@ -30,6 +30,7 @@ available_setting = {
     "group_name_keyword_white_list": [],  # 开启自动回复的群名称关键词列表
     "group_chat_in_one_session": ["ChatGPT测试群"],  # 支持会话上下文共享的群名称
     "auto_timed_message_groups": [], # 自动定时发送消息的群名称列表
+    "is_auto_timed_message": False, # 是否自动定时发送消息
     "auto_timed_message_cron": {}, # 自动定时发送消息的cron表达式
     "debug_auto_timed_message_cron": {}, # 调式用！自动定时发送消息的cron表达式
     "trigger_by_self": False,  # 是否允许机器人触发
