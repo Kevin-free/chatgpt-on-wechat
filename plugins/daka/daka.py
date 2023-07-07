@@ -30,7 +30,8 @@ class Daka(Plugin):
 
         content = e_context["context"].content
         logger.debug("[Daka] on_handle_context. content: %s" % content)
-        if content.startswith("打卡"):
+        # 内容包含“打卡”
+        if "打卡" in content:
             e_context["context"].type = ContextType.TEXT
             msg: ChatMessage = e_context["context"]["msg"]
             logger.debug("[Daka] content 打卡！msg: %s" % msg)

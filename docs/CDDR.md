@@ -318,11 +318,11 @@ You
 
 ---
 
-在 json 配置文件中怎么配置映射类型 cron_expression = {
-'year': '_',
+在 json 配置文件中怎么配置映射类型 cron*expression = {
+'year': '*',
 'month': '_',
 'day': '_',
-'week': '_',
+'week': '\_',
 'day_of_week': '\*',
 'hour': '18',
 'minute': '0',
@@ -424,3 +424,93 @@ scheduler.add_job(job, 'cron', **cron_expression)
 需要注意的是，`APScheduler` 是基于 Python 的调度库，对于秒级的任务调度，可能存在一些精度限制和系统时钟误差。如果您需要非常精确的 10 秒级任务调度，可能需要考虑其他更高精度的调度方式或者使用专门的定时任务工具。
 
 ---
+
+## 20230701
+
+You
+
+---
+
+给我提供正确的代码，Python 语言实现，获取当前日期{curday}，并将{curday}以「几月几日」的格式拼接到{reply.content}里的{curday}。
+reply.content = '''@真 AI 健身教练 Jessie 打卡#接龙
+
+{curday}打卡 伙伴们加油 💪🏻
+例 打卡第 X 天
+训练部位：训练动作 训练时长
+（可选：饮食、睡眠记录
+（可选：其他心得分享
+
+复制以上内容，修改发送打卡。'''
+
+---
+
+ChatGPT
+
+---
+
+以下是给出的代码，它使用`datetime`模块获取当前日期，并将其格式化为「几月几日」的形式，然后将其拼接到`reply.content`中：
+
+```python
+import datetime
+
+curday = datetime.datetime.now().strftime("%m月%d日")
+reply.content = f'''@真AI健身教练Jessie 打卡#接龙
+
+{curday}打卡 伙伴们加油💪🏻
+例 打卡第X天
+训练部位：训练动作 训练时长
+（可选：饮食、睡眠记录
+（可选：其他心得分享
+
+复制以上内容，修改发送打卡。'''
+```
+
+在这个代码中，我们使用`datetime.datetime.now()`获取当前日期和时间，然后使用`strftime()`方法将日期格式化为`"%m月%d日"`的形式，最后将其插入到`reply.content`的相应位置。
+
+---
+
+You
+
+---
+
+我需要用定时任务自动发消息，6:00 自动发送打卡模板消息到微信群聊，月底用 Python 对聊天记录进行统计分析，得到这个月每个人的打卡情况。你能告诉我「自动发送打卡模板」应该用什么格式好吗？
+
+---
+
+You
+
+---
+
+微信「接龙」功能有 API 接口吗？
+
+---
+
+## 20230704
+
+You
+
+---
+
+把`if content.startswith("打卡")`改成包含“打卡”。
+
+---
+
+ChatGPT
+
+---
+
+如果你想将条件判断改为包含"打卡"，可以使用`if "打卡" in content`来替换`if content.startswith("打卡")`。这样的修改将会检查`content`是否包含子字符串"打卡"，而不仅仅是以"打卡"开头。
+
+以下是修改后的代码示例：
+
+```python
+if "打卡" in content:
+    # 执行相应的逻辑
+```
+
+这样修改后，如果`content`包含"打卡"子字符串，条件判断就会成立。你可以在条件成立时执行相应的逻辑代码。
+
+---
+
+## 20230705
+

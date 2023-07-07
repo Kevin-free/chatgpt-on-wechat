@@ -40,8 +40,7 @@ class ChatChannel(Channel):
         thread_schedule.setDaemon(True)
 
         thread_consume.start()
-        if conf().get("is_auto_timed_message") == True:
-            thread_schedule.start()
+        thread_schedule.start()
 
     # 根据消息构造context，消息内容相关的触发项写在这里
     def _compose_context(self, ctype: ContextType, content, **kwargs):
@@ -162,13 +161,25 @@ class ChatChannel(Channel):
         # reply的发送步骤
         self._send_reply(context, reply)
 
-    # 定时发送消息
+    # 18:00 定时发送消息，健身打卡提醒
     def _send_scheduled_message(self, reply: Reply = Reply()) -> Reply:
         logger.debug("[chat_channel] do _send_scheduled_message")
         e_context = PluginManager().emit_event(
             EventContext(
                 Event.ON_SCHEDULED_MESSAGE,
-                {"channel": self, "reply": reply},
+                {"channel": self, "context": "1800", "reply": reply},
+            )
+        )
+        reply = e_context["reply"]
+        self.send_the_group(reply)
+
+    # 6:00 定时发送消息，打卡接龙模板
+    def _send_scheduled_message_morning_reminder(self, reply: Reply = Reply()) -> Reply:
+        logger.debug("[chat_channel] do _send_scheduled_message_morning_reminder")
+        e_context = PluginManager().emit_event(
+            EventContext(
+                Event.ON_SCHEDULED_MESSAGE,
+                {"channel": self, "context": "600", "reply": reply},
             )
         )
         reply = e_context["reply"]
@@ -352,11 +363,19 @@ class ChatChannel(Channel):
         # False 是可选的默认值，如果字典中不存在 "debug" 键，则返回默认值。
         if conf().get("debug", False):
             auto_timed_message_cron = conf().get("debug_auto_timed_message_cron")
+            auto_timed_message_cron_morning_reminder = conf().get("debug_auto_timed_message_cron_morning_reminder")
         else:
             auto_timed_message_cron = conf().get("auto_timed_message_cron")
-        scheduler.add_job(self._send_scheduled_message, 'cron', **auto_timed_message_cron)
-        logger.info("scheduler auto_timed_message_cron={}".format(auto_timed_message_cron))
+            auto_timed_message_cron_morning_reminder = conf().get("auto_timed_message_cron_morning_reminder")
+        # 18:00 定时任务，自动发送健身打卡提醒
+        if conf().get("is_auto_timed_message") == True:
+            scheduler.add_job(self._send_scheduled_message, 'cron', **auto_timed_message_cron)
+        # 6:00 定时任务，自动发送打卡接龙模板
+        if conf().get("is_auto_timed_message_morning_reminder") == True:
+            scheduler.add_job(self._send_scheduled_message_morning_reminder, 'cron', **auto_timed_message_cron_morning_reminder)
         scheduler.start()
+        logger.info("start scheduler auto_timed_message_cron={}".format(auto_timed_message_cron))
+        logger.info("start scheduler auto_timed_message_cron_morning_reminder={}".format(auto_timed_message_cron_morning_reminder))
 
     # 取消session_id对应的所有任务，只能取消排队的消息和已提交线程池但未执行的任务
     def cancel_session(self, session_id):

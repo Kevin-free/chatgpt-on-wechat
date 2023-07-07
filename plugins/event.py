@@ -28,7 +28,7 @@ class Event(Enum):
 
     ON_SCHEDULED_MESSAGE = 6  # 定时消息事件
     """
-    e_context = { "channel": 消息channel, "reply" : 目前的回复 }
+    e_context = { "channel": 消息channel, "context" : 本次消息的context, "reply" : 目前的回复 }
     """
 
 class EventAction(Enum):
